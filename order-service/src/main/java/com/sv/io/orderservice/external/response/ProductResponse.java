@@ -1,4 +1,4 @@
-package com.sv.io.productservice.model;
+package com.sv.io.orderservice.external.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -5,6 +5,8 @@ import com.sv.io.orderservice.exception.CustomException;
 import com.sv.io.orderservice.external.client.PaymentService;
 import com.sv.io.orderservice.external.client.ProductService;
 import com.sv.io.orderservice.external.model.PaymentRequest;
+import com.sv.io.orderservice.external.response.PaymentResponse;
+import com.sv.io.orderservice.external.response.ProductResponse;
 import com.sv.io.orderservice.model.OrderRequest;
 import com.sv.io.orderservice.model.OrderResponse;
 import com.sv.io.orderservice.model.OrderStatus;
@@ -13,6 +15,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 
@@ -26,6 +29,8 @@ public class OrderServiceImpl implements OrderService {
     private ProductService productService;
     @Autowired
     private PaymentService paymentService;
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Override
     public long placeOrder(OrderRequest orderRequest) {
@@ -76,12 +81,41 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new CustomException("Order is not found by orderId: " + orderId,
                         "ORDER_NOT_FOUND", HttpStatus.NOT_FOUND.value()));
 
+        log.info("Invoking product service to fetch the product details");
+
+        ProductResponse productResponse =
+                restTemplate.getForObject("http://PRODUCT-SERVICE/product/"+order.getProductId(),
+                        ProductResponse.class);
+
+        log.info("Invoking payment service to fetch the payment details");
+
+        PaymentResponse paymentResponse = restTemplate.getForObject("http://PAYMENT-SERVICE/payment/order/"+order.getId(),
+                PaymentResponse.class);
+
+        OrderResponse.ProductDetails productDetails = OrderResponse.ProductDetails
+                .builder()
+                .productName(productResponse.getProductName())
+                .productId(productResponse.getProductId())
+                .price(productResponse.getPrice())
+                .quantity(productResponse.getQuantity())
+                .build();
+
+        OrderResponse.PaymentDetails paymentDetails = OrderResponse.PaymentDetails
+                .builder()
+                .paymentId(paymentResponse.getPaymentId())
+                .paymentDate(paymentResponse.getPaymentDate())
+                .paymentStatus(paymentResponse.getStatus())
+                .paymentMode(paymentResponse.getPaymentMode())
+                .build();
+
         return OrderResponse
                 .builder()
                 .orderId(order.getId())
                 .orderDate(order.getOrderDate())
                 .amount(order.getAmount())
                 .orderStatus(order.getOrderStatus())
+                .productDetails(productDetails)
+                .paymentDetails(paymentDetails)
                 .build();
     }
 }
