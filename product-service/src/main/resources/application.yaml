@@ -1,8 +1,9 @@
+
 server:
   port: 8080
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/productdb
+    url: jdbc:mysql://${DB_HOST:localhost}:3306/productdb
     username: root
     password:
     driver-class-name: com.mysql.cj.jdbc.Driver
