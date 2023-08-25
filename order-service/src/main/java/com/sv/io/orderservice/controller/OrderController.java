@@ -1,6 +1,7 @@
 package com.sv.io.orderservice.controller;
 
 import com.sv.io.orderservice.model.OrderRequest;
+import com.sv.io.orderservice.model.OrderResponse;
 import com.sv.io.orderservice.service.OrderService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,15 @@ public class OrderController {
         return new ResponseEntity<>(orderId, HttpStatus.OK);
     }
 
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderResponse> getOrderDetails(@PathVariable long orderId) {
+        log.info("Fetching order by orderId: {}", orderId);
+
+        OrderResponse orderResponse = orderService.getOrderDetails(orderId);
+
+        log.info("Fetching order by orderId: {} is complete.", orderId);
+        return new ResponseEntity<>(orderResponse, HttpStatus.OK);
+    }
 }
 
 
