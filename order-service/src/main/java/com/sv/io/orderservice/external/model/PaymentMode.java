@@ -1,4 +1,4 @@
-package com.sv.io.orderservice.model;
+package com.sv.io.orderservice.external.model;
 
 public enum PaymentMode {
     CASH,

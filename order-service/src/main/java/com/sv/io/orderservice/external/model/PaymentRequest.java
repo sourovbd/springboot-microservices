@@ -1,7 +1,6 @@
 package com.sv.io.orderservice.external.model;
 
 import com.sv.io.orderservice.external.entity.Payment;
-import com.sv.io.orderservice.model.PaymentMode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
